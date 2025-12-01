@@ -60,3 +60,45 @@ It demonstrates:
 ---
 
 ## Folder Structure
+
+gospelreach/
+├── config/
+│ └── db.js # Connects to PostgreSQL
+├── controllers/
+│ └── authController.js # Handles signup/login logic
+├── middleware/
+│ └── authMiddleware.js # Verifies JWT for protected routes
+├── models/
+│ └── User.js # Talks to the users table in DB
+├── routes/
+│ └── authRoutes.js # Routes for /auth endpoints
+├── utils/
+│ └── generateToken.js # Creates JWT tokens
+├── public/
+│ ├── index.html # Simple UI for testing login/signup
+│ ├── style.css # Styles for the frontend demo
+│ └── script.js # Frontend JS logic
+├── server.js # Main server entry point
+├── .env # Environment variables (not uploaded)
+└── README.md # This file
+
+---
+
+## Database Setup
+
+Before running the app, create your database and users table.
+
+### 1 Create Database
+
+```sql
+CREATE DATABASE gospelreach;
+```
+
+CREATE TABLE users (
+id SERIAL PRIMARY KEY,
+name VARCHAR(100) NOT NULL,
+email VARCHAR(150) UNIQUE NOT NULL,
+password_hash TEXT NOT NULL,
+role VARCHAR(20) DEFAULT 'user',
+created_at TIMESTAMP DEFAULT NOW()
+);
