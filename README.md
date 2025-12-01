@@ -59,7 +59,7 @@ It demonstrates:
 
 ---
 
-## roject Details
+## Project Details
 
 <details>
   <summary>Click to view Folder Structure</summary>
