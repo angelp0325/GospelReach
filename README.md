@@ -39,13 +39,13 @@ It demonstrates:
 
 ## Tech Stack
 
-| Area               | Tool                    |
-| ------------------ | ----------------------- |
-| Backend            | Node.js + Express       |
-| Database           | PostgreSQL              |
-| Authentication     | bcrypt + JWT            |
-| Environment Config | dotenv                  |
-| Frontend           | HTML + CSS + Vanilla JS |
+| Area               | Tool              |
+| ------------------ | ----------------- |
+| Backend            | Node.js + Express |
+| Database           | PostgreSQL        |
+| Authentication     | bcrypt + JWT      |
+| Environment Config | dotenv            |
+| Frontend           | HTML + CSS + JS   |
 
 ---
 
@@ -59,46 +59,30 @@ It demonstrates:
 
 ---
 
-## Folder Structure
+## roject Details
 
+<details>
+  <summary>Click to view Folder Structure</summary>
+
+```bash
 gospelreach/
 ├── config/
-│ └── db.js # Connects to PostgreSQL
+│   └── db.js               # Connects to PostgreSQL
 ├── controllers/
-│ └── authController.js # Handles signup/login logic
+│   └── authController.js   # Handles signup/login logic
 ├── middleware/
-│ └── authMiddleware.js # Verifies JWT for protected routes
+│   └── authMiddleware.js   # Protects routes, checks JWT
 ├── models/
-│ └── User.js # Talks to the users table in DB
+│   └── User.js             # User model — interacts with DB
 ├── routes/
-│ └── authRoutes.js # Routes for /auth endpoints
+│   └── authRoutes.js       # API routes for authentication
 ├── utils/
-│ └── generateToken.js # Creates JWT tokens
+│   └── generateToken.js    # Generates JWT tokens
 ├── public/
-│ ├── index.html # Simple UI for testing login/signup
-│ ├── style.css # Styles for the frontend demo
-│ └── script.js # Frontend JS logic
-├── server.js # Main server entry point
-├── .env # Environment variables (not uploaded)
-└── README.md # This file
-
----
-
-## Database Setup
-
-Before running the app, create your database and users table.
-
-### 1 Create Database
-
-```sql
-CREATE DATABASE gospelreach;
+│   ├── index.html          # Frontend for testing auth
+│   ├── style.css           # Styles the demo page
+│   └── script.js           # Handles frontend logic
+├── server.js               # Express server entry point
+├── .env                    # Environment variables
+└── README.md               # Documentation
 ```
-
-CREATE TABLE users (
-id SERIAL PRIMARY KEY,
-name VARCHAR(100) NOT NULL,
-email VARCHAR(150) UNIQUE NOT NULL,
-password_hash TEXT NOT NULL,
-role VARCHAR(20) DEFAULT 'user',
-created_at TIMESTAMP DEFAULT NOW()
-);
