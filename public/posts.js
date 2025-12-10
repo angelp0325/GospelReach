@@ -1,12 +1,71 @@
+// posts.js
+// This handles creating, editing, deleting, liking, commenting, and filtering posts in GospelReach.
+
 const postForm = document.getElementById("postForm");
 const postMessage = document.getElementById("postMessage");
 const postsContainer = document.getElementById("postsContainer");
+const categorySelect = document.getElementById("categorySelect");
 const token = localStorage.getItem("jwtToken");
 const API_URL = window.location.origin;
 
 let editPostId = null;
 
-// Fetch and display all posts (with comments + likes)
+postForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const title = document.getElementById("title").value.trim();
+  const content = document.getElementById("content").value.trim();
+  const category = document.getElementById("category").value.trim();
+
+  if (!title || !content || !category) {
+    postMessage.textContent = "Please fill in all fields.";
+    postMessage.style.color = "red";
+    return;
+  }
+
+  try {
+    const endpoint = editPostId
+      ? `${API_URL}/posts/${editPostId}`
+      : `${API_URL}/posts`;
+    const method = editPostId ? "PUT" : "POST";
+
+    const res = await fetch(endpoint, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ title, content, category }),
+    });
+
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.message || "Failed to save post.");
+    }
+
+    const data = await res.json();
+    postMessage.textContent = editPostId
+      ? "✅ Post updated successfully!"
+      : "✅ Post created successfully!";
+    postMessage.style.color = "green";
+
+    // Reset form
+    postForm.reset();
+    editPostId = null;
+    document.getElementById("formTitle").textContent = "Create a New Post";
+    document.getElementById("submitBtn").textContent = "Create Post";
+    document.getElementById("cancelEditBtn").style.display = "none";
+
+    // Reset category filter and reload posts
+    document.getElementById("categorySelect").value = "all";
+    fetchPosts();
+  } catch (err) {
+    console.error("Error saving post:", err);
+    postMessage.textContent = "❌ Error saving post. Try again.";
+    postMessage.style.color = "red";
+  }
+});
+
 async function fetchPosts() {
   postsContainer.innerHTML = "<p>Loading posts...</p>";
 
@@ -19,7 +78,6 @@ async function fetchPosts() {
       return;
     }
 
-    // Render posts with like + comment sections
     postsContainer.innerHTML = posts
       .map((post) => {
         const userId = getUserIdFromToken(token);
@@ -30,19 +88,20 @@ async function fetchPosts() {
           <h3>${post.title}</h3>
           <p>${post.content}</p>
           <p><strong>Category:</strong> ${post.category || "Uncategorized"}</p>
-          <p class="post-meta">By ${post.author_name} • ${new Date(
+          <p class="post-meta">
+            By ${post.author_name} • ${new Date(
           post.created_at
-        ).toLocaleString()}</p>
+        ).toLocaleString()}
+          </p>
 
-          <!-- ✅ Like Section -->
+          <!-- ❤️ Like Section -->
           <div class="likes-section">
-            <button id="likeBtn-${post.id}" onclick="toggleLike(${post.id})">
-              ❤️ Like
-            </button>
+            <button id="likeBtn-${post.id}" onclick="toggleLike(${
+          post.id
+        })">❤️ Like</button>
             <span id="likeCount-${post.id}">0 likes</span>
           </div>
 
-          <!-- Owner-only edit/delete buttons -->
           ${
             isOwner
               ? `
@@ -53,12 +112,12 @@ async function fetchPosts() {
                 )}', '${escapeText(post.category || "")}')">✏️ Edit</button>
               <button class="delete-btn" onclick="deletePost(${
                 post.id
-              })">Delete</button>
+              })">🗑️ Delete</button>
             `
               : ""
           }
 
-          <!-- Comments Section -->
+          <!-- 💬 Comments Section -->
           <div class="comments" id="comments-${post.id}">
             <h4>Comments</h4>
             <div id="commentList-${post.id}"></div>
@@ -77,7 +136,6 @@ async function fetchPosts() {
       })
       .join("");
 
-    // After posts load, fetch comments + likes for each
     posts.forEach((post) => {
       fetchComments(post.id);
       loadLikeStatus(post.id);
@@ -88,7 +146,42 @@ async function fetchPosts() {
   }
 }
 
-// Fetch comments for a specific post
+function editPost(id, title, content, category) {
+  document.getElementById("title").value = title;
+  document.getElementById("content").value = content;
+  document.getElementById("category").value = category;
+  document.getElementById("formTitle").textContent = "Edit Post";
+  document.getElementById("submitBtn").textContent = "Update Post";
+  document.getElementById("cancelEditBtn").style.display = "inline-block";
+  editPostId = id;
+}
+
+document.getElementById("cancelEditBtn").addEventListener("click", () => {
+  editPostId = null;
+  postForm.reset();
+  document.getElementById("formTitle").textContent = "Create a New Post";
+  document.getElementById("submitBtn").textContent = "Create Post";
+  document.getElementById("cancelEditBtn").style.display = "none";
+});
+
+// Delete Post
+async function deletePost(postId) {
+  if (!confirm("Are you sure you want to delete this post?")) return;
+
+  try {
+    const res = await fetch(`${API_URL}/posts/${postId}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (res.ok) {
+      fetchPosts();
+    }
+  } catch (err) {
+    console.error("Error deleting post:", err);
+  }
+}
+
 async function fetchComments(postId) {
   try {
     const res = await fetch(`${API_URL}/comments/${postId}`);
@@ -124,7 +217,7 @@ async function fetchComments(postId) {
   }
 }
 
-// Add a new comment
+// Add a comment
 async function addComment(event, postId) {
   event.preventDefault();
   const input = document.getElementById(`commentInput-${postId}`);
@@ -166,22 +259,6 @@ async function deleteComment(commentId, postId) {
   }
 }
 
-// Helpers
-function getUserIdFromToken(token) {
-  if (!token) return null;
-  try {
-    const payload = JSON.parse(atob(token.split(".")[1]));
-    return payload.id;
-  } catch {
-    return null;
-  }
-}
-
-function escapeText(text) {
-  return text.replace(/'/g, "\\'").replace(/"/g, "&quot;");
-}
-
-// Fetch likes count and whether the current user liked the post
 async function loadLikeStatus(postId) {
   const countRes = await fetch(`${API_URL}/likes/${postId}/count`);
   const { totalLikes } = await countRes.json();
@@ -204,7 +281,7 @@ async function loadLikeStatus(postId) {
   }
 }
 
-// Handle like/unlike click
+// Toggle like/unlike
 async function toggleLike(postId) {
   if (!token) {
     alert("You must be logged in to like posts.");
@@ -232,5 +309,104 @@ async function toggleLike(postId) {
   }
 }
 
-// Load everything
+async function loadCategories() {
+  try {
+    const res = await fetch(`${API_URL}/categories`);
+    const categories = await res.json();
+
+    if (categories.length > 0) {
+      // Load into filter
+      categories.forEach((cat) => {
+        const option = document.createElement("option");
+        option.value = cat;
+        option.textContent = cat;
+        categorySelect.appendChild(option);
+      });
+
+      // Load into create post form
+      const createCategorySelect = document.getElementById("category");
+      categories.forEach((cat) => {
+        const option = document.createElement("option");
+        option.value = cat;
+        option.textContent = cat;
+        createCategorySelect.appendChild(option);
+      });
+    }
+  } catch (err) {
+    console.error("Error loading categories:", err);
+  }
+}
+
+async function filterByCategory() {
+  const selected = categorySelect.value;
+
+  if (selected === "all") {
+    fetchPosts();
+    return;
+  }
+
+  postsContainer.innerHTML = `<p>Loading posts in ${selected}...</p>`;
+
+  try {
+    const res = await fetch(`${API_URL}/categories/${selected}`);
+    const posts = await res.json();
+
+    if (!posts.length) {
+      postsContainer.innerHTML = `<p>No posts found in "${selected}".</p>`;
+      return;
+    }
+
+    postsContainer.innerHTML = posts
+      .map(
+        (post) => `
+        <div class="post-card">
+          <h3>${post.title}</h3>
+          <p>${post.content}</p>
+          <p><strong>Category:</strong> ${post.category}</p>
+          <p class="post-meta">By ${post.author_name} • ${new Date(
+          post.created_at
+        ).toLocaleString()}</p>
+
+          <div class="likes-section">
+            <button id="likeBtn-${post.id}" onclick="toggleLike(${
+          post.id
+        })">❤️ Like</button>
+            <span id="likeCount-${post.id}">0 likes</span>
+          </div>
+
+          <div class="comments" id="comments-${post.id}">
+            <h4>Comments</h4>
+            <div id="commentList-${post.id}"></div>
+          </div>
+        </div>`
+      )
+      .join("");
+
+    posts.forEach((p) => {
+      loadLikeStatus(p.id);
+      fetchComments(p.id);
+    });
+  } catch (err) {
+    console.error("Error filtering posts:", err);
+  }
+}
+
+categorySelect.addEventListener("change", filterByCategory);
+
+function getUserIdFromToken(token) {
+  if (!token) return null;
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    return payload.id;
+  } catch {
+    return null;
+  }
+}
+
+function escapeText(text) {
+  return text.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+}
+
+// Load everything on page load
+loadCategories();
 fetchPosts();

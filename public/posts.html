@@ -4,29 +4,42 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GospelReach | Posts</title>
-    <link rel="stylesheet" href="./style.css" />
+    <link rel="stylesheet" href="/style.css" />
   </head>
+
   <body>
     <header>
       <h1>🕊️ GospelReach — Posts</h1>
       <nav>
         <a href="./index.html">Auth</a>
-        <a href="./posts.html">Posts</a>
+        <a href="./posts.html" class="active">Posts</a>
       </nav>
     </header>
 
     <main>
-      <!-- Create Post Form -->
       <section class="create-post">
         <h2 id="formTitle">Create a New Post</h2>
         <form id="postForm">
-          <input type="text" id="title" placeholder="Title" required />
+          <input
+            type="text"
+            id="title"
+            placeholder="Title"
+            maxlength="200"
+            required
+          />
           <textarea
             id="content"
             placeholder="Write your devotional or sermon..."
             required
           ></textarea>
-          <input type="text" id="category" placeholder="Category (optional)" />
+
+          <!-- Category Dropdown -->
+          <label for="category"><strong>Choose Category:</strong></label>
+          <select id="category" required>
+            <option value="">Select a category</option>
+            <!-- Options loaded dynamically from the database -->
+          </select>
+
           <button type="submit" id="submitBtn">Create Post</button>
           <button
             type="button"
@@ -41,12 +54,23 @@
 
       <hr />
 
-      <!-- Posts Feed -->
+      <section class="category-filter">
+        <h2>Browse by Category</h2>
+        <select id="categorySelect">
+          <option value="all">All Categories</option>
+          <!-- Options loaded dynamically -->
+        </select>
+      </section>
+
       <section class="posts-feed">
         <h2>Recent Posts</h2>
         <div id="postsContainer"></div>
       </section>
     </main>
+
+    <footer>
+      <p>🕊️ GospelReach &copy; 2025 — Connecting Faith Digitally</p>
+    </footer>
 
     <script src="./posts.js"></script>
   </body>

@@ -1,5 +1,5 @@
-// This file controls what happens when someone creates, edits, or views posts.
-// It connects user actions (routes) with the database helpers (models).
+// controllers/postController.js
+// Handles creating, reading, updating, and deleting posts.
 
 import {
   createPost,
@@ -13,8 +13,8 @@ import {
 export const createPostController = async (req, res) => {
   const { title, content, category } = req.body;
 
-  if (!title || !content) {
-    return res.status(400).json({ message: "Title and content are required." });
+  if (!title || !content || !category) {
+    return res.status(400).json({ message: "All fields are required." });
   }
 
   try {
@@ -54,6 +54,10 @@ export const getPostByIdController = async (req, res) => {
 // UPDATE a post
 export const updatePostController = async (req, res) => {
   const { title, content, category } = req.body;
+
+  if (!title || !content || !category) {
+    return res.status(400).json({ message: "All fields are required." });
+  }
 
   try {
     const updatedPost = await updatePost(
