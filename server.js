@@ -1,36 +1,31 @@
-import express from "express";
-import dotenv from "dotenv";
-import path from "path";
-import { fileURLToPath } from "url";
-import pool from "./config/db.js";
-import authRoutes from "./routes/authRoutes.js";
-import { protect } from "./middleware/authMiddleware.js";
+// server.js
+// Main entry point — this connects everything together.
+
+const express = require("express");
+const dotenv = require("dotenv");
+const cors = require("cors");
+const path = require("path");
+const { Pool } = require("pg");
+const authRoutes = require("./routes/authRoutes.js");
+const postRoutes = require("./routes/postRoutes.js");
 
 dotenv.config();
-
 const app = express();
-app.use(express.json());
 
-// Serve static files from /public
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// Middleware
+app.use(cors());
+app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
 // Routes
 app.use("/auth", authRoutes);
-
-// Protected route to check login status
-app.get("/auth/me", protect, (req, res) => {
-  res.json({ message: "You are logged in!", user: req.user });
-});
+app.use("/posts", postRoutes);
 
 // Default route
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+  res.send("Welcome to GospelReach API!");
 });
 
 // Start server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
