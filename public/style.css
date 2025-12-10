@@ -151,3 +151,58 @@ button:hover {
 #cancelEditBtn:hover {
   background: #555;
 }
+
+.comments {
+  background: #f8f9fa;
+  border-radius: 6px;
+  padding: 0.8em;
+  margin-top: 1em;
+}
+
+.comments h4 {
+  margin-top: 0;
+}
+
+.comment {
+  border-bottom: 1px solid #ddd;
+  padding: 0.4em 0;
+}
+
+.comment-meta {
+  font-size: 0.8em;
+  color: #777;
+}
+
+.commentForm {
+  display: flex;
+  gap: 0.5em;
+  margin-top: 0.5em;
+}
+
+.commentForm input {
+  flex: 1;
+  padding: 0.4em;
+}
+
+.commentForm button {
+  background: #0066cc;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.4em 0.8em;
+  cursor: pointer;
+}
+
+.delete-comment-btn {
+  background: #c9302c;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  padding: 0.2em 0.6em;
+  cursor: pointer;
+  font-size: 0.8em;
+}
+
+.delete-comment-btn:hover {
+  background: #a61c1c;
+}

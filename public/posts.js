@@ -1,23 +1,12 @@
-// This file handles everything on the posts page:
-// viewing, creating, editing, and deleting posts.
-
 const postForm = document.getElementById("postForm");
 const postMessage = document.getElementById("postMessage");
 const postsContainer = document.getElementById("postsContainer");
-const formTitle = document.getElementById("formTitle");
-const submitBtn = document.getElementById("submitBtn");
-const cancelEditBtn = document.getElementById("cancelEditBtn");
-
-// Token from login (saved in localStorage)
 const token = localStorage.getItem("jwtToken");
-
-// Base API URL
 const API_URL = window.location.origin;
 
-// Keeps track of which post we're editing (null means we're creating a new one)
 let editPostId = null;
 
-// Fetch and display all posts
+// Fetch and display all posts (with comments)
 async function fetchPosts() {
   postsContainer.innerHTML = "<p>Loading posts...</p>";
 
@@ -30,47 +19,142 @@ async function fetchPosts() {
       return;
     }
 
+    // Render posts + comment sections
     postsContainer.innerHTML = posts
       .map((post) => {
         const userId = getUserIdFromToken(token);
         const isOwner = userId && userId === post.user_id;
 
         return `
-          <div class="post-card">
-            <h3>${post.title}</h3>
-            <p>${post.content}</p>
-            <p><strong>Category:</strong> ${
-              post.category || "Uncategorized"
-            }</p>
-            <p class="post-meta">By ${post.author_name} • ${new Date(
+        <div class="post-card">
+          <h3>${post.title}</h3>
+          <p>${post.content}</p>
+          <p><strong>Category:</strong> ${post.category || "Uncategorized"}</p>
+          <p class="post-meta">By ${post.author_name} • ${new Date(
           post.created_at
         ).toLocaleString()}</p>
 
+          ${
+            isOwner
+              ? `
+              <button class="edit-btn" onclick="editPost(${
+                post.id
+              }, '${escapeText(post.title)}', '${escapeText(
+                  post.content
+                )}', '${escapeText(post.category || "")}')">✏️ Edit</button>
+              <button class="delete-btn" onclick="deletePost(${
+                post.id
+              })">Delete</button>
+            `
+              : ""
+          }
+
+          <!-- Comments Section -->
+          <div class="comments" id="comments-${post.id}">
+            <h4>Comments</h4>
+            <div id="commentList-${post.id}"></div>
             ${
-              isOwner
+              token
                 ? `
-                  <button class="edit-btn" onclick="editPost(${
-                    post.id
-                  }, '${escapeText(post.title)}', '${escapeText(
-                    post.content
-                  )}', '${escapeText(post.category || "")}')">✏️ Edit</button>
-                  <button class="delete-btn" onclick="deletePost(${
-                    post.id
-                  })"> Delete</button>
-                `
-                : ""
+              <form class="commentForm" onsubmit="addComment(event, ${post.id})">
+                <input type="text" id="commentInput-${post.id}" placeholder="Write a comment..." required />
+                <button type="submit">Send</button>
+              </form>
+            `
+                : "<p><em>Login to add a comment.</em></p>"
             }
           </div>
-        `;
+        </div>`;
       })
       .join("");
+
+    // After posts load, fetch comments for each
+    posts.forEach((post) => fetchComments(post.id));
   } catch (error) {
     console.error("Error loading posts:", error);
     postsContainer.innerHTML = "<p>Error loading posts.</p>";
   }
 }
 
-// Helper: Decode the token to get user ID
+// Fetch comments for a specific post
+async function fetchComments(postId) {
+  try {
+    const res = await fetch(`${API_URL}/comments/${postId}`);
+    const comments = await res.json();
+    const container = document.getElementById(`commentList-${postId}`);
+
+    if (!comments.length) {
+      container.innerHTML = "<p>No comments yet.</p>";
+      return;
+    }
+
+    container.innerHTML = comments
+      .map((c) => {
+        const userId = getUserIdFromToken(token);
+        const isOwner = userId && userId === c.user_id;
+        return `
+          <div class="comment">
+            <p><strong>${c.author_name}:</strong> ${c.content}</p>
+            <p class="comment-meta">${new Date(
+              c.created_at
+            ).toLocaleString()}</p>
+            ${
+              isOwner
+                ? `<button class="delete-comment-btn" onclick="deleteComment(${c.id}, ${postId})">Delete</button>`
+                : ""
+            }
+          </div>
+        `;
+      })
+      .join("");
+  } catch (err) {
+    console.error("Error fetching comments:", err);
+  }
+}
+
+// Add a new comment
+async function addComment(event, postId) {
+  event.preventDefault();
+  const input = document.getElementById(`commentInput-${postId}`);
+  const content = input.value.trim();
+  if (!content) return;
+
+  try {
+    const res = await fetch(`${API_URL}/comments`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ postId, content }),
+    });
+
+    if (res.ok) {
+      input.value = "";
+      fetchComments(postId);
+    }
+  } catch (err) {
+    console.error("Error adding comment:", err);
+  }
+}
+
+// Delete a comment
+async function deleteComment(commentId, postId) {
+  if (!confirm("Delete this comment?")) return;
+
+  try {
+    const res = await fetch(`${API_URL}/comments/${commentId}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (res.ok) fetchComments(postId);
+  } catch (err) {
+    console.error("Error deleting comment:", err);
+  }
+}
+
+// Helpers
 function getUserIdFromToken(token) {
   if (!token) return null;
   try {
@@ -81,108 +165,9 @@ function getUserIdFromToken(token) {
   }
 }
 
-// Escape text for safe HTML rendering
 function escapeText(text) {
   return text.replace(/'/g, "\\'").replace(/"/g, "&quot;");
 }
 
-// Handle create OR update post
-postForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  if (!token) {
-    postMessage.textContent = "You must be logged in to create or edit posts.";
-    return;
-  }
-
-  const title = document.getElementById("title").value.trim();
-  const content = document.getElementById("content").value.trim();
-  const category = document.getElementById("category").value.trim();
-
-  const method = editPostId ? "PUT" : "POST";
-  const endpoint = editPostId
-    ? `${API_URL}/posts/${editPostId}`
-    : `${API_URL}/posts`;
-
-  try {
-    const response = await fetch(endpoint, {
-      method,
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ title, content, category }),
-    });
-
-    const data = await response.json();
-
-    if (response.ok) {
-      postMessage.textContent = editPostId
-        ? " Post updated successfully!"
-        : " Post created successfully!";
-      postForm.reset();
-      exitEditMode();
-      fetchPosts();
-    } else {
-      postMessage.textContent = data.message || "Error saving post.";
-    }
-  } catch (error) {
-    console.error("Error saving post:", error);
-    postMessage.textContent = "Error saving post.";
-  }
-});
-
-// Enable Edit Mode for a post
-function editPost(id, title, content, category) {
-  editPostId = id;
-  document.getElementById("title").value = title;
-  document.getElementById("content").value = content;
-  document.getElementById("category").value = category;
-  formTitle.textContent = "Edit Post";
-  submitBtn.textContent = "Update Post";
-  cancelEditBtn.style.display = "inline-block";
-  postMessage.textContent = "Editing your post...";
-  window.scrollTo({ top: 0, behavior: "smooth" });
-}
-
-// Cancel Edit Mode
-cancelEditBtn.addEventListener("click", () => {
-  exitEditMode();
-});
-
-// Exit edit mode and reset form
-function exitEditMode() {
-  editPostId = null;
-  formTitle.textContent = "Create a New Post";
-  submitBtn.textContent = "Create Post";
-  cancelEditBtn.style.display = "none";
-  postForm.reset();
-  postMessage.textContent = "";
-}
-
-// Delete a post
-async function deletePost(id) {
-  const confirmDelete = confirm("Are you sure you want to delete this post?");
-  if (!confirmDelete) return;
-
-  try {
-    const response = await fetch(`${API_URL}/posts/${id}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    const data = await response.json();
-
-    if (response.ok) {
-      alert("🗑️ Post deleted successfully!");
-      fetchPosts();
-    } else {
-      alert(data.message || "Error deleting post.");
-    }
-  } catch (error) {
-    console.error("Error deleting post:", error);
-  }
-}
-
-// Load all posts when the page opens
+// Load everything
 fetchPosts();
