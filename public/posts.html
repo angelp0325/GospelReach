@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GospelReach | Posts</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <h1>🕊️ GospelReach — Posts</h1>
+      <nav>
+        <a href="index.html">Auth</a>
+        <a href="posts.html">Posts</a>
+      </nav>
+    </header>
+
+    <main>
+      <!-- Create Post Form -->
+      <section class="create-post">
+        <h2 id="formTitle">Create a New Post</h2>
+        <form id="postForm">
+          <input type="text" id="title" placeholder="Title" required />
+          <textarea
+            id="content"
+            placeholder="Write your devotional or sermon..."
+            required
+          ></textarea>
+          <input type="text" id="category" placeholder="Category (optional)" />
+          <button type="submit" id="submitBtn">Create Post</button>
+          <button
+            type="button"
+            id="cancelEditBtn"
+            style="display: none; background: #999; margin-left: 0.5em"
+          >
+            Cancel Edit
+          </button>
+        </form>
+        <p id="postMessage"></p>
+      </section>
+
+      <hr />
+
+      <!-- Posts Feed -->
+      <section class="posts-feed">
+        <h2>Recent Posts</h2>
+        <div id="postsContainer"></div>
+      </section>
+    </main>
+
+    <script src="posts.js"></script>
+  </body>
+</html>

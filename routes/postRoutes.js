@@ -1,24 +1,24 @@
-// routes/postRoutes.js
-// This file defines all the URLs for post actions (Create, Read, Update, Delete)
+// This file lists all routes (URLs) for the post system.
 
-const express = require("express");
+import express from "express";
+import {
+  createPostController,
+  getAllPostsController,
+  getPostByIdController,
+  updatePostController,
+  deletePostController,
+} from "../controllers/postController.js";
+import { protect } from "../middleware/authMiddleware.js";
+
 const router = express.Router();
-const { protect } = require("../middleware/authMiddleware.js");
-const {
-  createPost,
-  getAllPosts,
-  getPostById,
-  updatePost,
-  deletePost,
-} = require("../controllers/postController.js");
 
-// Public routes
-router.get("/", getAllPosts);
-router.get("/:id", getPostById);
+// Public routes — anyone can view posts
+router.get("/", getAllPostsController);
+router.get("/:id", getPostByIdController);
 
-// Protected routes (user must be logged in)
-router.post("/", protect, createPost);
-router.put("/:id", protect, updatePost);
-router.delete("/:id", protect, deletePost);
+// Protected routes — only logged-in users can modify posts
+router.post("/", protect, createPostController);
+router.put("/:id", protect, updatePostController);
+router.delete("/:id", protect, deletePostController);
 
-module.exports = router;
+export default router;

@@ -1,67 +1,64 @@
-// controllers/postController.js
-// This file handles all post-related logic.
-// It connects the requests from routes to the database through Post.js.
+// This file controls what happens when someone creates, edits, or views posts.
+// It connects user actions (routes) with the database helpers (models).
 
-const Post = require("../models/Post.js");
+import {
+  createPost,
+  getAllPosts,
+  getPostById,
+  updatePost,
+  deletePost,
+} from "../models/Post.js";
 
-// Create a new post
-async function createPost(req, res) {
+// CREATE a new post
+export const createPostController = async (req, res) => {
+  const { title, content, category } = req.body;
+
+  if (!title || !content) {
+    return res.status(400).json({ message: "Title and content are required." });
+  }
+
   try {
-    const { title, content, category } = req.body;
-    const userId = req.user.id; // This comes from the token
-
-    if (!title || !content) {
-      return res
-        .status(400)
-        .json({ message: "Title and content are required." });
-    }
-
-    const newPost = await Post.createPost(userId, title, content, category);
+    const newPost = await createPost(req.user.id, title, content, category);
     res.status(201).json(newPost);
   } catch (err) {
-    console.error("Error creating post:", err.message);
-    res.status(500).json({ message: "Server error creating post." });
+    console.error("Error in createPostController:", err.message);
+    res.status(500).json({ message: "Server error while creating post." });
   }
-}
+};
 
-// Get all posts
-async function getAllPosts(req, res) {
+// GET all posts
+export const getAllPostsController = async (req, res) => {
   try {
-    const posts = await Post.getAllPosts();
+    const posts = await getAllPosts();
     res.status(200).json(posts);
   } catch (err) {
-    console.error("Error fetching posts:", err.message);
-    res.status(500).json({ message: "Server error fetching posts." });
+    console.error("Error in getAllPostsController:", err.message);
+    res.status(500).json({ message: "Server error while getting posts." });
   }
-}
+};
 
-// Get a single post
-async function getPostById(req, res) {
+// GET one post by ID
+export const getPostByIdController = async (req, res) => {
   try {
-    const { id } = req.params;
-    const post = await Post.getPostById(id);
-
+    const post = await getPostById(req.params.id);
     if (!post) {
       return res.status(404).json({ message: "Post not found." });
     }
-
     res.status(200).json(post);
   } catch (err) {
-    console.error("Error fetching post:", err.message);
-    res.status(500).json({ message: "Server error fetching post." });
+    console.error("Error in getPostByIdController:", err.message);
+    res.status(500).json({ message: "Server error while getting post." });
   }
-}
+};
 
-// Update a post
-async function updatePost(req, res) {
+// UPDATE a post
+export const updatePostController = async (req, res) => {
+  const { title, content, category } = req.body;
+
   try {
-    const { id } = req.params;
-    const { title, content, category } = req.body;
-    const userId = req.user.id;
-
-    const updatedPost = await Post.updatePost(
-      id,
-      userId,
+    const updatedPost = await updatePost(
+      req.params.id,
+      req.user.id,
       title,
       content,
       category
@@ -70,23 +67,20 @@ async function updatePost(req, res) {
     if (!updatedPost) {
       return res
         .status(403)
-        .json({ message: "You can only edit your own posts." });
+        .json({ message: "You can only update your own posts." });
     }
 
     res.status(200).json(updatedPost);
   } catch (err) {
-    console.error("Error updating post:", err.message);
-    res.status(500).json({ message: "Server error updating post." });
+    console.error("Error in updatePostController:", err.message);
+    res.status(500).json({ message: "Server error while updating post." });
   }
-}
+};
 
-// Delete a post
-async function deletePost(req, res) {
+// DELETE a post
+export const deletePostController = async (req, res) => {
   try {
-    const { id } = req.params;
-    const userId = req.user.id;
-
-    const deletedPost = await Post.deletePost(id, userId);
+    const deletedPost = await deletePost(req.params.id, req.user.id);
 
     if (!deletedPost) {
       return res
@@ -96,15 +90,7 @@ async function deletePost(req, res) {
 
     res.status(200).json({ message: "Post deleted successfully." });
   } catch (err) {
-    console.error("Error deleting post:", err.message);
-    res.status(500).json({ message: "Server error deleting post." });
+    console.error("Error in deletePostController:", err.message);
+    res.status(500).json({ message: "Server error while deleting post." });
   }
-}
-
-module.exports = {
-  createPost,
-  getAllPosts,
-  getPostById,
-  updatePost,
-  deletePost,
 };

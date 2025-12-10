@@ -72,3 +72,82 @@ button:hover {
   font-family: monospace;
   font-size: 0.9rem;
 }
+
+.create-post {
+  background: #f8f9fa;
+  padding: 1.5em;
+  border-radius: 8px;
+  margin-bottom: 1.5em;
+}
+
+.create-post input,
+.create-post textarea {
+  width: 100%;
+  margin-bottom: 0.8em;
+  padding: 0.6em;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.create-post button {
+  background: #0066cc;
+  color: white;
+  padding: 0.7em 1.5em;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.create-post button:hover {
+  background: #004c99;
+}
+
+.post-card {
+  border: 1px solid #ccc;
+  background: #fff;
+  padding: 1em;
+  border-radius: 6px;
+  margin-bottom: 1em;
+  box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.post-meta {
+  font-size: 0.9em;
+  color: #666;
+}
+
+.delete-btn {
+  background: #cc0000;
+  color: white;
+  border: none;
+  padding: 0.5em 1em;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.delete-btn:hover {
+  background: #990000;
+}
+
+.edit-btn {
+  background: #f0ad4e;
+  color: white;
+  border: none;
+  padding: 0.5em 1em;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-right: 0.5em;
+}
+
+.edit-btn:hover {
+  background: #ec971f;
+}
+
+#cancelEditBtn {
+  background: #888;
+  color: white;
+}
+
+#cancelEditBtn:hover {
+  background: #555;
+}
