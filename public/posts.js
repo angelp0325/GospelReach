@@ -6,7 +6,7 @@ const API_URL = window.location.origin;
 
 let editPostId = null;
 
-// Fetch and display all posts (with comments)
+// Fetch and display all posts (with comments + likes)
 async function fetchPosts() {
   postsContainer.innerHTML = "<p>Loading posts...</p>";
 
@@ -19,7 +19,7 @@ async function fetchPosts() {
       return;
     }
 
-    // Render posts + comment sections
+    // Render posts with like + comment sections
     postsContainer.innerHTML = posts
       .map((post) => {
         const userId = getUserIdFromToken(token);
@@ -34,6 +34,15 @@ async function fetchPosts() {
           post.created_at
         ).toLocaleString()}</p>
 
+          <!-- ✅ Like Section -->
+          <div class="likes-section">
+            <button id="likeBtn-${post.id}" onclick="toggleLike(${post.id})">
+              ❤️ Like
+            </button>
+            <span id="likeCount-${post.id}">0 likes</span>
+          </div>
+
+          <!-- Owner-only edit/delete buttons -->
           ${
             isOwner
               ? `
@@ -68,8 +77,11 @@ async function fetchPosts() {
       })
       .join("");
 
-    // After posts load, fetch comments for each
-    posts.forEach((post) => fetchComments(post.id));
+    // After posts load, fetch comments + likes for each
+    posts.forEach((post) => {
+      fetchComments(post.id);
+      loadLikeStatus(post.id);
+    });
   } catch (error) {
     console.error("Error loading posts:", error);
     postsContainer.innerHTML = "<p>Error loading posts.</p>";
@@ -167,6 +179,57 @@ function getUserIdFromToken(token) {
 
 function escapeText(text) {
   return text.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+}
+
+// Fetch likes count and whether the current user liked the post
+async function loadLikeStatus(postId) {
+  const countRes = await fetch(`${API_URL}/likes/${postId}/count`);
+  const { totalLikes } = await countRes.json();
+
+  let liked = false;
+  if (token) {
+    const likedRes = await fetch(`${API_URL}/likes/${postId}/status`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const likedData = await likedRes.json();
+    liked = likedData.liked;
+  }
+
+  const likeBtn = document.getElementById(`likeBtn-${postId}`);
+  const likeCount = document.getElementById(`likeCount-${postId}`);
+
+  if (likeBtn && likeCount) {
+    likeBtn.textContent = liked ? "💔 Unlike" : "❤️ Like";
+    likeCount.textContent = `${totalLikes} like${totalLikes === 1 ? "" : "s"}`;
+  }
+}
+
+// Handle like/unlike click
+async function toggleLike(postId) {
+  if (!token) {
+    alert("You must be logged in to like posts.");
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_URL}/likes/${postId}`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    const data = await res.json();
+    const likeBtn = document.getElementById(`likeBtn-${postId}`);
+    const likeCount = document.getElementById(`likeCount-${postId}`);
+
+    if (likeBtn && likeCount) {
+      likeBtn.textContent = data.liked ? "💔 Unlike" : "❤️ Like";
+      likeCount.textContent = `${data.totalLikes} like${
+        data.totalLikes === 1 ? "" : "s"
+      }`;
+    }
+  } catch (err) {
+    console.error("Error toggling like:", err);
+  }
 }
 
 // Load everything

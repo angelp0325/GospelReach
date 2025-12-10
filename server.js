@@ -6,6 +6,7 @@ import pool from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import postRoutes from "./routes/postRoutes.js";
 import commentRoutes from "./routes/commentRoutes.js";
+import likeRoutes from "./routes/likeRoutes.js";
 import { protect } from "./middleware/authMiddleware.js";
 
 dotenv.config();
@@ -22,6 +23,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/auth", authRoutes);
 app.use("/posts", postRoutes);
 app.use("/comments", commentRoutes);
+app.use("/likes", likeRoutes);
 
 // Protected route example
 app.get("/auth/me", protect, (req, res) => {

@@ -206,3 +206,28 @@ button:hover {
 .delete-comment-btn:hover {
   background: #a61c1c;
 }
+
+.likes-section {
+  margin-top: 0.5em;
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+}
+
+.likes-section button {
+  background: #ff4b5c;
+  color: white;
+  border: none;
+  padding: 0.4em 0.8em;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.likes-section button:hover {
+  background: #e63b4c;
+}
+
+.likes-section span {
+  font-size: 0.9em;
+  color: #333;
+}
