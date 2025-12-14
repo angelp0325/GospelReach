@@ -9,6 +9,7 @@ import commentRoutes from "./routes/commentRoutes.js";
 import likeRoutes from "./routes/likeRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import { protect } from "./middleware/authMiddleware.js";
+import "./config/initDB.js";
 
 dotenv.config();
 

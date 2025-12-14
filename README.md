@@ -1,88 +1,139 @@
-# 🕊️ GospelReach — Authentication Core Feature (Full Demo)
+# 🕊️ GospelReach
 
-## Overview
+### _A Christian Community Platform for Sharing Devotionals, Sermons, and Faith Discussions._
 
-**GospelReach** is a web app that helps evangelists, pastors, and believers connect and share their faith online.  
-This part of the project is the **User Authentication Core Feature**, where users can:
+GospelReach is a **full-stack + PostgreSQL** web app where users can:
 
-- Sign up for an account
-- Log in securely
-- Stay logged in using JSON Web Tokens (JWTs)
-- Verify their session automatically in the browser
-
-This demo includes a simple **frontend (HTML/CSS/JS)** connected to an **Express + PostgreSQL backend**, showing how authentication works in real time.
+- ✍️ Share devotionals or sermons
+- 💬 Comment on posts
+- ❤️ Like and engage with content
+- 🏷️ Browse by category (Theology, Evangelism, Apologetics, etc.)
+- 🙏 Build community through faith-based discussions
 
 ---
 
-## Goal
+## 🚀 Tech Stack
 
-The goal of this feature is to build a **secure and functional login system** that meets the Capstone’s “core feature” requirement.
-
-It demonstrates:
-
-- Secure password handling (bcrypt)
-- Token-based authentication (JWT)
-- A clean PostgreSQL + Express structure
-- A basic frontend to visualize login flow
+**Frontend:** React  
+**Backend:** Express.js, Node.js  
+**Database:** PostgreSQL  
+**Authentication:** JWT (JSON Web Token)
 
 ---
 
-## Core Features
+## ⚙️ Installation & Setup
 
-**Sign Up:** Create an account with a name, email, and password  
- **Log In:** Validate credentials and receive a JWT token  
- **Stay Logged In:** Tokens are stored in browser localStorage  
- **Verify Session:** Automatically checks if the token is valid  
- **Frontend Demo:** Built-in webpage for quick testing
-
----
-
-## Tech Stack
-
-| Area               | Tool              |
-| ------------------ | ----------------- |
-| Backend            | Node.js + Express |
-| Database           | PostgreSQL        |
-| Authentication     | bcrypt + JWT      |
-| Environment Config | dotenv            |
-| Frontend           | HTML + CSS + JS   |
-
----
-
-## How It Works
-
-1. The user signs up → their password is **hashed** before being saved.
-2. The user logs in → the server checks their password using bcrypt.
-3. If valid → a **JWT token** is generated and sent back.
-4. The frontend stores the token in **localStorage**.
-5. The token is used to verify login status through `/auth/me`.
-
----
-
-## Project Details
-
-<details>
-  <summary>Click to view Folder Structure</summary>
+### 🧱 1️⃣ Clone the Repository
 
 ```bash
-gospelreach/
-├── config/
-│   └── db.js               # Connects to PostgreSQL
-├── controllers/
-│   └── authController.js   # Handles signup/login logic
-├── middleware/
-│   └── authMiddleware.js   # Protects routes, checks JWT
-├── models/
-│   └── User.js             # User model — interacts with DB
-├── routes/
-│   └── authRoutes.js       # API routes for authentication
-├── utils/
-│   └── generateToken.js    # Generates JWT tokens
-├── public/
-│   ├── index.html          # Frontend for testing auth
-│   ├── style.css           # Styles the demo page
-│   └── script.js           # Handles frontend logic
-├── server.js               # Express server entry point
-├── .env                    # Environment variables
-└── README.md               # Documentation
+git clone ...
+cd GospelReach
+
+🗄️ 2️⃣ Create the Database
+
+Open your PostgreSQL shell and run:
+CREATE DATABASE gospelreach;
+
+No need to manually create tables — initDB.js handles that automatically when the server starts.
+
+🔐 3️⃣ Configure Environment Variables
+
+Create a .env file in the root directory:
+
+DATABASE_URL=postgresql://postgres:<yourpassword>@localhost:5432/gospelreach
+JWT_SECRET=your_secret_key_here
+PORT=5000
+
+🧩 4️⃣ Install Dependencies
+Backend:
+npm install
+
+Frontend:
+cd client
+npm install
+
+🖥️ 5️⃣ Run the App
+
+In two terminals:
+
+Backend:
+npm run dev
+
+Frontend:
+cd client
+npm start
+
+Then open your browser at:
+http://localhost:3000
+
+🧠 Core Features
+Feature	Description
+👤 User Authentication	Register, log in, and log out securely with JWT
+📰 Create/Edit/Delete Posts	Users can write and manage devotionals and sermons
+💬 Comment System	Add and delete comments under posts
+❤️ Like System	Like/unlike posts with color feedback
+🏷️ Category Filter	View posts by categories like Theology or Evangelism
+🔒 Protected Routes	/create-post is restricted to logged-in users
+🧭 Dynamic Navbar	Switches between “Log In” and “Log Out” automatically
+
+🧰 Auto Database Setup
+
+When the backend starts, it automatically:
+
+🏗️ Creates the necessary tables (users, posts, comments, likes, categories)
+
+🌱 Seeds the default GospelReach categories:
+
+Theology
+Evangelism
+Apologetics
+Christian Living
+Church History
+Prayer
+Discipleship
+
+
+No manual SQL setup required 🎉
+
+🎨 UI Behavior Highlights
+
+✅ Navbar now appears on all pages
+✅ “Create Post” button only shows when logged in
+✅ “Like” button:
+
+Disabled for guests
+
+Turns red when liked
+
+Updates counts live
+✅ Comments auto-refresh after posting or deletion
+✅ Categories load dynamically from the database
+✅ Editing a post pre-fills the title, content, and category fields
+
+🔒 Security
+
+JWT-based authentication stored in localStorage
+
+Authorization middleware protects backend routes
+
+Parameterized SQL queries prevent injection attacks
+
+Auto table creation ensures consistent DB schema across setups
+
+🧪 Testing Checklist
+Test	Expected Result
+🧍 Register/Login	Creates a new account and generates JWT
+✍️ Create Post	Adds a post and appears in the feed
+🧾 Edit Post	Opens with prefilled data
+🗑️ Delete Post	Removes post from database
+❤️ Like/Unlike	Toggles color and count instantly
+💬 Comment	Adds comment under correct post
+🚫 Logged Out User	Can’t access /create-post or like posts
+🔄 Refresh	Likes and comments persist
 ```
+
+🙏 Closing Note
+
+“Let everything you do be done in love.” — 1 Corinthians 16:14
+
+GospelReach was built to empower believers to share their faith, uplift others, and build a Christ-centered online community.

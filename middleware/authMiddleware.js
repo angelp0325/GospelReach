@@ -37,3 +37,23 @@ export const protect = async (req, res, next) => {
     res.status(401).json({ message: "Invalid or expired token" });
   }
 };
+
+// detects user if token exists
+export const optionalAuth = async (req, res, next) => {
+  const authHeader = req.headers.authorization;
+
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+    const token = authHeader.split(" ")[1];
+
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const user = await findUserById(decoded.id);
+      if (user) req.user = user;
+    } catch (err) {
+      // If token invalid/expired, ignore and continue as guest
+      console.warn("Optional auth: invalid token ignored");
+    }
+  }
+
+  next();
+};

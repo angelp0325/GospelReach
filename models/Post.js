@@ -16,22 +16,34 @@ export const createPost = async (userId, title, content, category) => {
 
 // GET all posts (show latest first)
 export const getAllPosts = async () => {
-  const result = await pool.query(
-    `SELECT posts.*, users.name AS author_name
-     FROM posts
-     JOIN users ON posts.user_id = users.id
-     ORDER BY posts.created_at DESC`
-  );
+  const result = await pool.query(`
+    SELECT 
+      posts.*, 
+      users.name AS author_name,
+      COALESCE(COUNT(likes.id), 0) AS total_likes
+    FROM posts
+    JOIN users ON posts.user_id = users.id
+    LEFT JOIN likes ON posts.id = likes.post_id
+    GROUP BY posts.id, users.name
+    ORDER BY posts.created_at DESC
+  `);
   return result.rows;
 };
 
 // GET a single post by ID
 export const getPostById = async (id) => {
   const result = await pool.query(
-    `SELECT posts.*, users.name AS author_name
-     FROM posts
-     JOIN users ON posts.user_id = users.id
-     WHERE posts.id = $1`,
+    `
+    SELECT 
+      posts.*, 
+      users.name AS author_name,
+      COALESCE(COUNT(likes.id), 0) AS total_likes
+    FROM posts
+    JOIN users ON posts.user_id = users.id
+    LEFT JOIN likes ON posts.id = likes.post_id
+    WHERE posts.id = $1
+    GROUP BY posts.id, users.name
+    `,
     [id]
   );
   return result.rows[0];

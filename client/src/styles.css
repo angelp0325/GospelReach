@@ -1,0 +1,126 @@
+/* General */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f6f8;
+  margin: 0;
+  padding: 0;
+  color: #333;
+}
+
+/* Navbar */
+header {
+  background-color: #0066cc;
+  color: white;
+  padding: 1em;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+nav a {
+  color: white;
+  text-decoration: none;
+  margin-left: 1em;
+  font-weight: bold;
+}
+
+nav a:hover {
+  text-decoration: underline;
+}
+
+/* Main content */
+main {
+  max-width: 800px;
+  margin: 2em auto;
+  padding: 1em;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Buttons */
+button {
+  background-color: #0066cc;
+  color: white;
+  border: none;
+  padding: 0.5em 1em;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #004c99;
+}
+
+/* Form inputs */
+input,
+textarea,
+select {
+  width: 100%;
+  padding: 0.5em;
+  margin: 0.5em 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1em;
+}
+
+/* Post and Comment cards */
+.post-card,
+.comment {
+  background: #fafafa;
+  padding: 1em;
+  margin: 1em 0;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+
+.post-meta,
+.comment-meta {
+  font-size: 0.9em;
+  color: #666;
+}
+
+/* Category filter */
+.category-filter {
+  margin: 1.5em 0;
+  text-align: center;
+}
+
+.category-filter select {
+  width: 50%;
+  max-width: 300px;
+}
+
+/* Navbar styling */
+.navbar {
+  background-color: #2e3a59;
+  color: white;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 0.75em 1.5em;
+  gap: 1em;
+}
+
+.navbar a {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.navbar a:hover {
+  text-decoration: underline;
+}
+
+.navbar button {
+  background: transparent;
+  border: none;
+  color: #ffcccc;
+  cursor: pointer;
+  font-weight: bold;
+}

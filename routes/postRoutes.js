@@ -8,12 +8,13 @@ import {
   updatePostController,
   deletePostController,
 } from "../controllers/postController.js";
-import { protect } from "../middleware/authMiddleware.js";
+import { protect, optionalAuth } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
 // Public routes — anyone can view posts
-router.get("/", getAllPostsController);
+// Updated: optionalAuth allows backend to identify user (for user_liked)
+router.get("/", optionalAuth, getAllPostsController);
 router.get("/:id", getPostByIdController);
 
 // Protected routes — only logged-in users can modify posts
